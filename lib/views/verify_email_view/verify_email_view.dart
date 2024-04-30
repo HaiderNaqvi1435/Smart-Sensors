@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:smart_sensors/res/components/device_button/device_button.dart';
 import 'package:smart_sensors/res/routes/routes_name.dart';
@@ -25,10 +26,14 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
   @override
   void initState() {
     timer = Timer.periodic(const Duration(seconds: 2), (timer) {
-      user.reload();
+      reloadUser();
     });
     // TODO: implement initState
     super.initState();
+  }
+
+  reloadUser() async {
+    await user.reload();
   }
 
   @override
