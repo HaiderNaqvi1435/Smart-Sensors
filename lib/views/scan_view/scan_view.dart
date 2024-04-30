@@ -86,6 +86,8 @@ class _ScanViewState extends State<ScanView> {
       }),
       bottomSheet: DeviceButton(
         title: "Scan Devices",
+        icon: const Icon(Icons.bluetooth,
+                    size: 10, color: AppColors.blackColor),
         onPressed: () async {
           await _bluetoothController.startBluetoothScan();
         },

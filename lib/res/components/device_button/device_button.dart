@@ -6,8 +6,10 @@ import '../default_text/default_text.dart';
 class DeviceButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String title;
+  final Icon icon;
   const DeviceButton({
     super.key,
+    required this.icon,
     required this.onPressed,
     required this.title,
   });
@@ -35,8 +37,7 @@ class DeviceButton extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.bluetooth,
-                    size: 10, color: AppColors.blackColor),
+                icon,
                 const SizedBox(width: 8),
                 DefaultText(
                   text: title,

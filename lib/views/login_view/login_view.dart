@@ -1,9 +1,9 @@
 import 'package:smart_sensors/res/app_constants/app_constants.dart';
 import 'package:smart_sensors/res/components/default_text/default_text.dart';
 import 'package:smart_sensors/res/routes/routes_name.dart';
-import 'package:smart_sensors/view_models/login_view_model/login_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:smart_sensors/view_models/controller/auth__controller/auth__controller.dart';
 
 import '../../res/components/have_account_widget/have_account_widget.dart';
 import '../../res/components/large_button/large_button.dart';
@@ -18,7 +18,8 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  final loginVM = Get.put(LoginViewModel());
+  final loginVM = Get.put(AuthController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,14 +76,15 @@ class _LoginViewState extends State<LoginView> {
               ),
               LargeButton(
                 title: "LOGIN",
-                onPressed: () async{
-                  loginVM.login();
+                onPressed: () async {
+                  loginVM.loginUser(loginVM.emailController.value.text,
+                      loginVM.passwordController.value.text);
                 },
               ),
               HaveAccountWidget(
                 isLoginPage: true,
                 onPressed: () {
-                  Get.offAndToNamed(RouteName.signUpView);
+                  Get.offNamed(RouteName.signUpView);
                 },
               ),
             ],

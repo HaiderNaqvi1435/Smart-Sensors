@@ -1,10 +1,12 @@
 import 'package:smart_sensors/models/user_data_model/user_data_model.dart';
-import 'package:smart_sensors/services/firebase_services/auth_services/auth_services.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../controller/auth__controller/auth__controller.dart';
+
 class SignUpViewModel extends GetxController {
-  final authServices = AuthServices();
+    final AuthController authController = Get.put(AuthController());
+
   RxBool obscureText = true.obs;
   RxBool obscureText1 = true.obs;
 
@@ -16,6 +18,7 @@ class SignUpViewModel extends GetxController {
   final cityController = TextEditingController().obs;
   final stateController = TextEditingController().obs;
   final passwordController = TextEditingController().obs;
+  final confirmpasswordController = TextEditingController().obs;
 
   final nameFocusNode = FocusNode().obs;
   final emailFocusNode = FocusNode().obs;
@@ -41,7 +44,7 @@ class SignUpViewModel extends GetxController {
       address: address,
     );
 
-    await authServices.signUp(emailController.value.text,
+     authController.createUser(emailController.value.text,
         passwordController.value.text, userDataModel);
   }
 }

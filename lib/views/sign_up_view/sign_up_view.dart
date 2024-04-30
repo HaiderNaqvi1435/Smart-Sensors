@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:smart_sensors/utils/utils.dart';
 import '../../res/app_constants/app_constants.dart';
 import '../../res/components/have_account_widget/have_account_widget.dart';
 import '../../res/components/large_button/large_button.dart';
@@ -90,6 +91,7 @@ class _SignUpViewState extends State<SignUpView> {
                     },
                   ),
                   TextFieldWidget(
+                    controller: signUpVM.confirmpasswordController.value,
                     hintText: "Confirm Password",
                     prefixIcon: Icons.lock,
                     suffixIcon: signUpVM.obscureText1.value
@@ -97,23 +99,26 @@ class _SignUpViewState extends State<SignUpView> {
                         : Icons.visibility_off_outlined,
                     obscureText: signUpVM.obscureText1.value,
                     onPressed: () {
-                      setState(() {
-                        signUpVM.obscureText1.value =
-                            !signUpVM.obscureText1.value;
-                      });
+                      signUpVM.obscureText1.value =
+                          !signUpVM.obscureText1.value;
                     },
                   ),
                   const SizedBox(height: 30),
                   LargeButton(
                     title: "SIGNUP",
                     onPressed: () {
-                      signUpVM.signUp();
+                      if (signUpVM.passwordController.value.text ==
+                          signUpVM.confirmpasswordController.value.text) {
+                        signUpVM.signUp();
+                      } else {
+                        Utils.toastMessage("Password not Matched");
+                      }
                     },
                   ),
                   HaveAccountWidget(
                     isLoginPage: false,
                     onPressed: () {
-                      Get.offAndToNamed(RouteName.loginView);
+                      Get.offNamed(RouteName.loginView);
                     },
                   ),
                 ],

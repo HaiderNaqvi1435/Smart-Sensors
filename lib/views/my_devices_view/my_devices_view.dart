@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:smart_sensors/res/colors/app_colors/app_colors.dart';
+import 'package:smart_sensors/view_models/controller/bluetooth_controller/bluetooth_controller.dart';
 import 'package:smart_sensors/view_models/controller/firestore_controller/firestore_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,6 +12,7 @@ import '../../res/components/custom_divider/custom_divider.dart';
 import '../../res/components/default_text/default_text.dart';
 import '../../res/routes/routes_name.dart';
 import '../../services/permission_services/permission_services.dart';
+import '../../view_models/controller/auth__controller/auth__controller.dart';
 import 'widgets/data_table_widget.dart';
 
 class MyDevicesView extends StatefulWidget {
@@ -21,14 +25,29 @@ class MyDevicesView extends StatefulWidget {
 class _MyDevicesViewState extends State<MyDevicesView> {
   FirestoreController firestoreController = Get.put(FirestoreController());
   final PermissionServices permissionServices = PermissionServices();
+  final AuthController authController = Get.put(AuthController());
+  final btc = Get.put(BluetoothController());
+  late final Timer timer;
   @override
   void initState() {
+    timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      firestoreController.showData();
+      // btc.getCharacteristics(btc.connecteddevice!).then((value) {
+      //   firestoreController.getData();
+      // });
+    });
     super.initState();
 
     permissionServices.getPermissions();
   }
 
   @override
+  void dispose() {
+    timer.cancel();
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   // List<String> deviceId = [
   //   "001",
   //   "002",
@@ -45,29 +64,14 @@ class _MyDevicesViewState extends State<MyDevicesView> {
           actions: [
             IconButton(
                 onPressed: () async {
-                  firestoreController.logout();
+                  await authController.signOut();
                 },
-                icon: const Icon(Icons.logout))
+                icon: const Icon(Icons.logout)),
             // IconButton(
             //     onPressed: () async {
-            //       DeviceDataModel deviceDataModel = DeviceDataModel(
-            //           characteristic: [123, 3432, 454, 23],
-            //           deviceId: "356",
-            //           serviceId: "3435",
-            //           userId: FirebaseAuth.instance.currentUser!.uid,
-            //           characteristicId: "dsfsr");
-
-            //       try {
-            //         FireStoreServices firebaseServices = FireStoreServices();
-            //         await firebaseServices
-            //             .storeData(deviceDataModel)
-            //             .then((value) => firestoreController.showData());
-            //       } on Exception catch (e) {
-            //         // TODO
-            //         print("ERROR: $e");
-            //       }
+            //       firestoreController.testfirestore();
             //     },
-            //     icon: Icon(Icons.add))
+            //     icon: const Icon(Icons.add)),
           ],
         ),
         body: firestoreController.datalist.isNotEmpty
@@ -103,6 +107,11 @@ class _MyDevicesViewState extends State<MyDevicesView> {
               ),
         bottomSheet: DeviceButton(
           title: "Add Device",
+          icon: const Icon(
+            Icons.bluetooth,
+            size: 10,
+            color: AppColors.blackColor,
+          ),
           onPressed: () {
             Get.toNamed(RouteName.scanView);
           },
