@@ -69,16 +69,14 @@ BluetoothDevice? connecteddevice;
       await device.connect(timeout: const Duration(seconds: 10));
       BluetoothConnectionState connectionState =
           await device.connectionState.firstWhere(
-        (state) {
-          connecteddevice =device;
-          return state == BluetoothConnectionState.connected;
-          
-        },
+        (state) => state == BluetoothConnectionState.connected,
         orElse: () {
           throw Exception('Failed to connect to device');
         },
       );
       if (connectionState == BluetoothConnectionState.connected) {
+          connecteddevice =device;
+
         Utils.toastMessage("Device is connected");
         Get.toNamed(RouteName.myDevicesView, arguments: [device]);
         await getCharacteristics(device);

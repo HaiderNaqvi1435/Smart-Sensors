@@ -62,6 +62,7 @@ class FirestoreController extends GetxController {
   }
 
   void showData() async {
+    
     datalist.clear();
     datalist.addAll(await getData());
   }

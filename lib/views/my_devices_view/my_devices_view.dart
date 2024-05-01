@@ -30,12 +30,14 @@ class _MyDevicesViewState extends State<MyDevicesView> {
   late final Timer timer;
   @override
   void initState() {
-    timer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      firestoreController.showData();
-      // btc.getCharacteristics(btc.connecteddevice!).then((value) {
-      //   firestoreController.getData();
-      // });
-    });
+    if (btc.connecteddevice!.isConnected) {
+      timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+        btc.getCharacteristics(btc.connecteddevice!).then((value) {
+          firestoreController.showData();
+        });
+      });
+    }
+
     super.initState();
 
     permissionServices.getPermissions();
