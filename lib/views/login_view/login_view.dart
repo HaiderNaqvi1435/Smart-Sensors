@@ -9,6 +9,7 @@ import '../../res/components/have_account_widget/have_account_widget.dart';
 import '../../res/components/large_button/large_button.dart';
 import '../../res/components/textfield_widget/textfield_widget.dart';
 import '../../res/components/title_text_widget/title_text_widget.dart';
+import '../../utils/utils.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -68,7 +69,9 @@ class _LoginViewState extends State<LoginView> {
                     ],
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Get.toNamed(RouteName.resetPasswordView);
+                    },
                     child: const DefaultText(
                         text: 'Forgot Password?', fontSize: 9),
                   ),
@@ -77,8 +80,13 @@ class _LoginViewState extends State<LoginView> {
               LargeButton(
                 title: "LOGIN",
                 onPressed: () async {
-                  loginVM.loginUser(loginVM.emailController.value.text,
-                      loginVM.passwordController.value.text);
+                  if (!loginVM.resetemailController.value.text.isEmail) {
+                    Utils.toastMessage("Check your email");
+                    // Call the AuthController to send the password reset email
+                  } else {
+                    loginVM.loginUser(loginVM.emailController.value.text,
+                        loginVM.passwordController.value.text);
+                  }
                 },
               ),
               HaveAccountWidget(

@@ -1,5 +1,6 @@
 import 'package:smart_sensors/res/routes/routes_name.dart';
 import 'package:smart_sensors/views/my_devices_view/my_devices_view.dart';
+import 'package:smart_sensors/views/reset_password_view/reset_password_view.dart';
 import 'package:smart_sensors/views/scan_view/scan_view.dart';
 import 'package:smart_sensors/views/sign_up_view/sign_up_view.dart';
 import 'package:get/get.dart';
@@ -26,6 +27,12 @@ class AppRoutes {
          GetPage(
           name: RouteName.verifyEmailView,
           page: () => const VerifyEmailView(),
+          transitionDuration: const Duration(milliseconds: 250),
+          transition: Transition.leftToRightWithFade,
+        ),
+         GetPage(
+          name: RouteName.resetPasswordView,
+          page: () => const ResetPasswordView(),
           transitionDuration: const Duration(milliseconds: 250),
           transition: Transition.leftToRightWithFade,
         ),

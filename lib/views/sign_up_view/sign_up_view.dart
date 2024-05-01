@@ -108,7 +108,7 @@ class _SignUpViewState extends State<SignUpView> {
                     title: "SIGNUP",
                     onPressed: () {
                       if (signUpVM.passwordController.value.text ==
-                          signUpVM.confirmpasswordController.value.text) {
+                          signUpVM.confirmpasswordController.value.text && signUpVM.emailController.value.text.isEmail) {
                         signUpVM.signUp();
                       } else {
                         Utils.toastMessage("Password not Matched");

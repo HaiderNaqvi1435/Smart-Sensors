@@ -20,6 +20,7 @@ class AuthController extends GetxController {
   }
 
   final emailController = TextEditingController().obs;
+  final resetemailController = TextEditingController().obs;
   final passwordController = TextEditingController().obs;
   RxBool obscureText = true.obs;
   RxBool isChecked = false.obs;
@@ -51,7 +52,10 @@ class AuthController extends GetxController {
         // Update the UI to show a message to check their email
       }
     } catch (e) {
-      Utils.toastMessage("Something went wrong!");
+      if (kDebugMode) {
+        print("Error messge${e}");
+      }
+      Utils.toastMessage("Something went wrong. Try again!");
 
       // Handle errors
     }
@@ -99,6 +103,18 @@ class AuthController extends GetxController {
     }
   }
 
-  
+  void sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      Utils.toastMessage('A password reset link has been sent to your email.');
+
+      // Show a message to the user that the email has been sent
+    } catch (e) {
+      Utils.toastMessage(
+          'An error occurred while sending the password reset link.');
+
+      // If there is an error, display it to the user
+    }
+  }
   // AuthServices authServices = AuthServices();
 }
