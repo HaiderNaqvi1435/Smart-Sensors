@@ -21,7 +21,7 @@ class VerifyEmailView extends StatefulWidget {
 
 class _VerifyEmailViewState extends State<VerifyEmailView> {
   final AuthController authController = Get.put(AuthController());
-  final user = FirebaseAuth.instance.currentUser!;
+  var user = FirebaseAuth.instance.currentUser!;
   late Timer timer;
   @override
   void initState() {
@@ -32,10 +32,17 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
     super.initState();
   }
 
-  reloadUser() async {
-    await user.reload();
-  }
+ void reloadUser() async {
+  await user.reload();
+  user = FirebaseAuth.instance.currentUser!; // Re-assign the user with updated data
 
+  if (user.emailVerified) {
+    timer.cancel(); // Stop the timer if the email is verified
+    setState(() {
+      // This will rebuild the widget with the updated verification status
+    });
+  }
+}
   @override
   void dispose() {
     timer.cancel();

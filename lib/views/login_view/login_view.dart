@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:smart_sensors/res/app_constants/app_constants.dart';
 import 'package:smart_sensors/res/components/default_text/default_text.dart';
 import 'package:smart_sensors/res/routes/routes_name.dart';
@@ -78,14 +79,18 @@ class _LoginViewState extends State<LoginView> {
                 ],
               ),
               LargeButton(
+                isloading: loginVM.isloading.value,
                 title: "LOGIN",
                 onPressed: () async {
-                  if (!loginVM.resetemailController.value.text.isEmail) {
-                    Utils.toastMessage("Check your email");
-                    // Call the AuthController to send the password reset email
-                  } else {
+                  if (EmailValidator.validate(
+                      loginVM.emailController.value.text)) {
+                        
                     loginVM.loginUser(loginVM.emailController.value.text,
                         loginVM.passwordController.value.text);
+                    // Call the AuthController to send the password reset email
+                  } else {
+                    Utils.toastMessage("Check your email");
+
                   }
                 },
               ),

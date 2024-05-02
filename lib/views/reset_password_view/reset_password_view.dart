@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_sensors/res/components/large_button/large_button.dart';
@@ -46,16 +47,18 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
             ),
             const SizedBox(height: 20),
             LargeButton(
-                onPressed: () {
-                  if (!authController.resetemailController.value.text.isEmail) {
-                    Utils.toastMessage("Check your email");
-                    // Call the AuthController to send the password reset email
-                  } else {
-                    authController.sendPasswordResetEmail(
-                        authController.resetemailController.value.text);
-                  }
-                },
-                title: "Reset")
+              title: "RESET",
+              onPressed: () async {
+                if (EmailValidator.validate(
+                    authController.resetemailController.value.text)) {
+                  authController.sendPasswordResetEmail(
+                      authController.resetemailController.value.text);
+                  // Call the AuthController to send the password reset email
+                } else {
+                  Utils.toastMessage("Check your email");
+                }
+              },
+            ),
           ],
         ),
       ),

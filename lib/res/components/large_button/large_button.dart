@@ -5,9 +5,11 @@ import '../../colors/app_colors/app_colors.dart';
 class LargeButton extends StatelessWidget {
   final String title;
   final VoidCallback onPressed;
+  final bool? isloading;
   const LargeButton({
     super.key,
-    required this.title ,
+    required this.title,
+    this.isloading = false,
     required this.onPressed,
   });
 
@@ -31,10 +33,16 @@ class LargeButton extends StatelessWidget {
                 end: Alignment.bottomRight,
               )),
           child: Center(
-              child:  Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          )),
+              child: isloading == true
+                  ? const SizedBox(
+                      height: 25,
+                      width: 25,
+                      child: CircularProgressIndicator(
+                          color: AppColors.blackColor))
+                  : Text(
+                      title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    )),
         ),
       ),
     );

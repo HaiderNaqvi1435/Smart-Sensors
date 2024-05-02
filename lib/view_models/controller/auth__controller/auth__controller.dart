@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:smart_sensors/models/user_data_model/user_data_model.dart';
 import 'package:smart_sensors/res/routes/routes_name.dart';
 
 import '../../../utils/utils.dart';
@@ -26,73 +24,50 @@ class AuthController extends GetxController {
   RxBool isChecked = false.obs;
   final emailFocusNode = FocusNode().obs;
   final passwordFocusNode = FocusNode().obs;
-  RxBool loading = false.obs;
+  RxBool isloading = false.obs;
   Rxn<User> user = Rxn<User>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  void createUser(
-      String email, String password, UserDataModel userDataModel) async {
-    try {
-      UserCredential userCredential = await _auth
-          .createUserWithEmailAndPassword(email: email, password: password);
-      if (!userCredential.user!.emailVerified) {
-        await userCredential.user!.sendEmailVerification();
-        await _firestore
-            .collection("user_data")
-            .doc(userCredential.user!.uid)
-            .set(userDataModel.toJson())
-            .then((value) {
-          if (kDebugMode) {
-            print("Sign up successfully");
-          }
-          Utils.toastMessage("Signup successfully!");
-          Get.offAllNamed(RouteName.verifyEmailView);
-        });
-
-        // Update the UI to show a message to check their email
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error messge${e}");
-      }
-      Utils.toastMessage("Something went wrong. Try again!");
-
-      // Handle errors
-    }
-  }
 
   void loginUser(String email, String password) async {
     try {
+      isloading(true); // Start loading
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
       if (!userCredential.user!.emailVerified) {
         if (kDebugMode) {
-          print('email${!userCredential.user!.emailVerified}');
+          print('Email not verified');
         }
         Get.offNamed(RouteName.verifyEmailView);
-
-        // Update the UI to prompt the user to verify their email
       } else {
         if (kDebugMode) {
-          print('email${userCredential.user!.emailVerified}');
+          print('Email verified');
         }
-
         Get.offNamed(RouteName.homeView);
         Utils.toastMessage("Login successfully!");
-
-        // Navigate to the home screen
       }
     } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
       Utils.toastMessage("Something went wrong!");
-
-      // Handle errors
+    } finally {
+      isloading(false); // Stop loading regardless of the outcome
     }
   }
 
   Future<void> signOut() async {
-    await _auth.signOut();
-    Get.offAllNamed(RouteName.loginView);
-    Utils.toastMessage("Signed out");
+    try {
+      await _auth.signOut();
+      Get.offNamed(RouteName.loginView);
+      Utils.toastMessage("Signed out");
+    } catch (e) {
+      if (kDebugMode) {
+        print("Sign out error: $e");
+      }
+      Utils.toastMessage("Failed to sign out. Please try again.");
+    }
   }
 
   void resendVerificationEmail() async {
@@ -107,13 +82,17 @@ class AuthController extends GetxController {
     try {
       await _auth.sendPasswordResetEmail(email: email);
       Utils.toastMessage('A password reset link has been sent to your email.');
-
-      // Show a message to the user that the email has been sent
-    } catch (e) {
-      Utils.toastMessage(
+    } on FirebaseAuthException catch (e) {
+      if (kDebugMode) {
+        print("Password reset error: ${e.message}");
+      }
+      Utils.toastMessage(e.message ??
           'An error occurred while sending the password reset link.');
-
-      // If there is an error, display it to the user
+    } catch (e) {
+      if (kDebugMode) {
+        print("Unknown error: $e");
+      }
+      Utils.toastMessage('An unexpected error occurred. Please try again.');
     }
   }
   // AuthServices authServices = AuthServices();

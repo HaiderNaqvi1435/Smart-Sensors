@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:smart_sensors/utils/utils.dart';
@@ -105,13 +106,21 @@ class _SignUpViewState extends State<SignUpView> {
                   ),
                   const SizedBox(height: 30),
                   LargeButton(
+                    isloading: signUpVM.isloading.value,
                     title: "SIGNUP",
-                    onPressed: () {
+                    onPressed: () async {
                       if (signUpVM.passwordController.value.text ==
-                          signUpVM.confirmpasswordController.value.text && signUpVM.emailController.value.text.isEmail) {
+                              signUpVM.confirmpasswordController.value.text &&
+                          EmailValidator.validate(
+                              signUpVM.emailController.value.text)) {
                         signUpVM.signUp();
                       } else {
-                        Utils.toastMessage("Password not Matched");
+                        if (signUpVM.passwordController.value.text !=
+                            signUpVM.confirmpasswordController.value.text) {
+                          Utils.toastMessage("Passwords do not match");
+                        } else {
+                          Utils.toastMessage("Invalid email address");
+                        }
                       }
                     },
                   ),

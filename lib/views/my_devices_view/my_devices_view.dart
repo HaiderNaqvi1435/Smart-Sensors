@@ -28,25 +28,26 @@ class _MyDevicesViewState extends State<MyDevicesView> {
   final AuthController authController = Get.put(AuthController());
   final btc = Get.put(BluetoothController());
   late final Timer timer;
+
   @override
   void initState() {
-    if (btc.connecteddevice!.isConnected) {
-      timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+    super.initState();
+    // Always initialize the timer.
+    timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      if (btc.connecteddevice != null) {
         btc.getCharacteristics(btc.connecteddevice!).then((value) {
           firestoreController.showData();
         });
-      });
-    }
-
-    super.initState();
+      }
+    });
 
     permissionServices.getPermissions();
   }
 
   @override
   void dispose() {
+    // Since timer is always initialized, it's safe to cancel it here.
     timer.cancel();
-    // TODO: implement dispose
     super.dispose();
   }
 
