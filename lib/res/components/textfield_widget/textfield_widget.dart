@@ -11,6 +11,7 @@ class TextFieldWidget extends StatelessWidget {
   final bool? obscureText;
   final TextEditingController? controller;
   final FocusNode? focusNode;
+  final TextInputType? keyboardType;
   const TextFieldWidget({
     super.key,
     required this.hintText,
@@ -19,12 +20,14 @@ class TextFieldWidget extends StatelessWidget {
     this.onPressed,
     this.obscureText,
     this.controller,
-    this.focusNode
+    this.focusNode,
+    this.keyboardType,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      keyboardType: keyboardType,
       controller: controller,
       focusNode: focusNode,
       obscureText: obscureText ?? false,

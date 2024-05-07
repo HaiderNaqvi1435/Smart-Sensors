@@ -7,9 +7,11 @@ import '../../../models/device_data_model/device_data_model.dart';
 import '../../../utils/utils.dart';
 
 class FirestoreController extends GetxController {
-  RxList<DeviceDataModel> datalist = <DeviceDataModel>[].obs;
-  FirestoreController() {
-    showData();
+  RxList<DeviceDataModel> dataList = <DeviceDataModel>[].obs;
+  @override
+  void onInit() async {
+    dataList.value = await getData();
+    super.onInit();
   }
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -20,14 +22,8 @@ class FirestoreController extends GetxController {
       await _firestore
           .collection("device_data")
           .doc(deviceData.deviceId)
-          .set(deviceData.toJson())
-          .then(
-        (value) {
-          if (kDebugMode) {
-            print('Data stored successfully for device ');
-          }
-        },
-      );
+          .set(deviceData.toJson());
+      dataList.value = await getData();
     } catch (e) {
       if (kDebugMode) {
         Utils.toastMessage("Error while storing data!");
@@ -59,12 +55,6 @@ class FirestoreController extends GetxController {
       }
     }
     return result;
-  }
-
-  void showData() async {
-    
-    datalist.clear();
-    datalist.addAll(await getData());
   }
 
   testfirestore() async {

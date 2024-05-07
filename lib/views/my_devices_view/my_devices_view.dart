@@ -23,20 +23,20 @@ class MyDevicesView extends StatefulWidget {
 }
 
 class _MyDevicesViewState extends State<MyDevicesView> {
-  FirestoreController firestoreController = Get.put(FirestoreController());
+  final firestoreController = Get.put(FirestoreController());
   final PermissionServices permissionServices = PermissionServices();
   final AuthController authController = Get.put(AuthController());
   final btc = Get.put(BluetoothController());
   late final Timer timer;
-
   @override
   void initState() {
     super.initState();
     // Always initialize the timer.
-    timer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      if (btc.connecteddevice != null) {
-        btc.getCharacteristics(btc.connecteddevice!).then((value) {
-          firestoreController.showData();
+    timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+      if (btc.connectedDevice != null) {
+        await btc.getCharacteristics(btc.connectedDevice!).then((value) async {
+          firestoreController.dataList.value =
+              await firestoreController.getData();
         });
       }
     });
@@ -77,7 +77,7 @@ class _MyDevicesViewState extends State<MyDevicesView> {
             //     icon: const Icon(Icons.add)),
           ],
         ),
-        body: firestoreController.datalist.isNotEmpty
+        body: firestoreController.dataList.isNotEmpty
             ? Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
@@ -87,7 +87,7 @@ class _MyDevicesViewState extends State<MyDevicesView> {
                       const AvailableDeviceContainner(),
                       const SizedBox(height: 20),
                       DataTableWidget(
-                        deviceList: firestoreController.datalist,
+                        deviceList: firestoreController.dataList,
                       ),
                     ],
                   ),

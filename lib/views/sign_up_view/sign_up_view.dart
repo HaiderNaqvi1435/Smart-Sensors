@@ -49,6 +49,7 @@ class _SignUpViewState extends State<SignUpView> {
                     prefixIcon: Icons.email_outlined,
                   ),
                   TextFieldWidget(
+                    keyboardType: TextInputType.phone,
                     controller: signUpVM.phoneController.value,
                     focusNode: signUpVM.phoneFocusNode.value,
                     hintText: "Phone Number",
