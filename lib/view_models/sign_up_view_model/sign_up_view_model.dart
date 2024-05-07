@@ -26,6 +26,7 @@ class SignUpViewModel extends GetxController {
   final passwordController = TextEditingController().obs;
   final confirmpasswordController = TextEditingController().obs;
 
+
   final nameFocusNode = FocusNode().obs;
   final emailFocusNode = FocusNode().obs;
   final phoneFocusNode = FocusNode().obs;
@@ -74,6 +75,16 @@ class SignUpViewModel extends GetxController {
         if (kDebugMode) {
           print("Sign up successfully");
         }
+        nameController.value.clear();
+        emailController.value.clear();
+        passwordController.value.clear();
+        confirmpasswordController.value.clear();
+        phoneController.value.clear();
+        cityController.value.clear();
+        houseNoController.value.clear();
+        streetNoController.value.clear();
+        stateController.value.clear();
+
         Utils.toastMessage("Signup successfully!");
         Get.offNamed(RouteName.verifyEmailView);
       } else {

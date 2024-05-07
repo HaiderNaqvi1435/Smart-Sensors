@@ -9,8 +9,36 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:smart_sensors/view_models/controller/firestore_controller/firestore_controller.dart';
 import '../../../res/routes/routes_name.dart';
+import '../../../services/permission_services/permission_services.dart';
+import '../auth__controller/auth__controller.dart';
 
 class BluetoothController extends GetxController {
+  late final Timer timer;
+  final PermissionServices permissionServices = PermissionServices();
+  final firestoreController = Get.put(FirestoreController());
+  final AuthController authController = Get.put(AuthController());
+  @override
+  void onInit() async {
+    await firestoreController.getData();
+    // Always initialize the timer.
+    timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+      if (connectedDevice != null) {
+        await getCharacteristics(connectedDevice!);
+      }
+    });
+    permissionServices.getPermissions();
+
+    // TODO: implement onInit
+    super.onInit();
+  }
+
+  @override
+  void dispose() {
+    // Since timer is always initialized, it's safe to cancel it here.
+    timer.cancel();
+    super.dispose();
+  }
+
   final firestore = Get.put(FirestoreController());
   late final BluetoothDevice? connectedDevice;
 
@@ -78,8 +106,9 @@ class BluetoothController extends GetxController {
       );
       if (connectionState == BluetoothConnectionState.connected) {
         Utils.toastMessage("Device is connected");
-        Get.toNamed(RouteName.myDevicesView, arguments: [device]);
         await getCharacteristics(device);
+        Get.toNamed(RouteName.myDevicesView);
+
         return device; // Return the connected device
       }
     } catch (e) {
@@ -203,6 +232,7 @@ class BluetoothController extends GetxController {
     DeviceDataModel deviceDataModel = DeviceDataModel(
       characteristic: value,
       deviceId: device.remoteId.toString(),
+      deviceName: device.platformName,
       characteristicId: characteristic.uuid.toString(),
       serviceId: service.uuid.toString(),
       userId: FirebaseAuth.instance.currentUser!.uid,

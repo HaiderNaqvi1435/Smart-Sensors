@@ -13,13 +13,16 @@ class AuthController extends GetxController {
 
   @override
   void onInit() {
+    emailController = TextEditingController().obs;
+    resetemailController = TextEditingController().obs;
+    passwordController = TextEditingController().obs;
     super.onInit();
     user.bindStream(_auth.authStateChanges());
   }
 
-  final emailController = TextEditingController().obs;
-  final resetemailController = TextEditingController().obs;
-  final passwordController = TextEditingController().obs;
+  late final Rx<TextEditingController> emailController;
+  late final Rx<TextEditingController> resetemailController;
+  late final Rx<TextEditingController> passwordController;
   RxBool obscureText = true.obs;
   RxBool isChecked = false.obs;
   final emailFocusNode = FocusNode().obs;
@@ -40,12 +43,16 @@ class AuthController extends GetxController {
           print('Email not verified');
         }
         Get.offNamed(RouteName.verifyEmailView);
+        emailController.value.clear();
+        passwordController.value.clear();
       } else {
         if (kDebugMode) {
           print('Email verified');
         }
         Get.offNamed(RouteName.homeView);
         Utils.toastMessage("Login successfully!");
+        emailController.value.clear();
+        passwordController.value.clear();
       }
     } catch (e) {
       if (kDebugMode) {
@@ -59,9 +66,10 @@ class AuthController extends GetxController {
 
   Future<void> signOut() async {
     try {
-      await _auth.signOut();
-      Get.offNamed(RouteName.loginView);
-      Utils.toastMessage("Signed out");
+      await _auth.signOut().then((value) {
+        Get.offNamed(RouteName.homeView);
+        Utils.toastMessage("Signed out");
+      });
     } catch (e) {
       if (kDebugMode) {
         print("Sign out error: $e");
@@ -82,6 +90,7 @@ class AuthController extends GetxController {
     try {
       await _auth.sendPasswordResetEmail(email: email);
       Utils.toastMessage('A password reset link has been sent to your email.');
+      resetemailController.value.clear();
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
         print("Password reset error: ${e.message}");

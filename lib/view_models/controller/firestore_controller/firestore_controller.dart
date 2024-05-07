@@ -15,7 +15,7 @@ class FirestoreController extends GetxController {
   }
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+  final RxBool isLoading = false.obs;
   // Store service UUID and characteristics in Firestore
   Future<void> storeData(DeviceDataModel deviceData) async {
     try {
@@ -36,6 +36,7 @@ class FirestoreController extends GetxController {
   Future<List<DeviceDataModel>> getData() async {
     List<DeviceDataModel> result = <DeviceDataModel>[];
     try {
+      isLoading(true);
       await _firestore
           .collection("device_data")
           .where("userId", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
@@ -49,7 +50,10 @@ class FirestoreController extends GetxController {
           print(result);
         }
       });
+      isLoading(false);
     } catch (e) {
+      isLoading(false);
+
       if (kDebugMode) {
         print('Error fetching data: $e');
       }

@@ -1,8 +1,6 @@
-import 'dart:async';
 
 import 'package:smart_sensors/res/colors/app_colors/app_colors.dart';
 import 'package:smart_sensors/view_models/controller/bluetooth_controller/bluetooth_controller.dart';
-import 'package:smart_sensors/view_models/controller/firestore_controller/firestore_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,8 +9,6 @@ import '../../res/components/device_button/device_button.dart';
 import '../../res/components/custom_divider/custom_divider.dart';
 import '../../res/components/default_text/default_text.dart';
 import '../../res/routes/routes_name.dart';
-import '../../services/permission_services/permission_services.dart';
-import '../../view_models/controller/auth__controller/auth__controller.dart';
 import 'widgets/data_table_widget.dart';
 
 class MyDevicesView extends StatefulWidget {
@@ -23,33 +19,7 @@ class MyDevicesView extends StatefulWidget {
 }
 
 class _MyDevicesViewState extends State<MyDevicesView> {
-  final firestoreController = Get.put(FirestoreController());
-  final PermissionServices permissionServices = PermissionServices();
-  final AuthController authController = Get.put(AuthController());
   final btc = Get.put(BluetoothController());
-  late final Timer timer;
-  @override
-  void initState() {
-    super.initState();
-    // Always initialize the timer.
-    timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      if (btc.connectedDevice != null) {
-        await btc.getCharacteristics(btc.connectedDevice!).then((value) async {
-          firestoreController.dataList.value =
-              await firestoreController.getData();
-        });
-      }
-    });
-
-    permissionServices.getPermissions();
-  }
-
-  @override
-  void dispose() {
-    // Since timer is always initialized, it's safe to cancel it here.
-    timer.cancel();
-    super.dispose();
-  }
 
   // List<String> deviceId = [
   //   "001",
@@ -67,7 +37,7 @@ class _MyDevicesViewState extends State<MyDevicesView> {
           actions: [
             IconButton(
                 onPressed: () async {
-                  await authController.signOut();
+                  await btc.authController.signOut();
                 },
                 icon: const Icon(Icons.logout)),
             // IconButton(
@@ -77,37 +47,43 @@ class _MyDevicesViewState extends State<MyDevicesView> {
             //     icon: const Icon(Icons.add)),
           ],
         ),
-        body: firestoreController.dataList.isNotEmpty
-            ? Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const AvailableDeviceContainner(),
-                      const SizedBox(height: 20),
-                      DataTableWidget(
-                        deviceList: firestoreController.dataList,
-                      ),
-                    ],
-                  ),
+        body: btc.firestoreController.isLoading.isTrue
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.linearColor1,
                 ),
               )
-            : Center(
-                child: FutureBuilder<void>(
-                  future: Future.delayed(
-                      const Duration(seconds: 2)), // Simulate a 2-second delay
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator(
-                        color: AppColors.linearColor1,
-                      ); // Show progress indicator
-                    } else {
-                      return const DefaultText(text: 'No Device Available');
-                    }
-                  },
-                ),
+            : Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+                child: btc.firestoreController.dataList.isNotEmpty
+                    ? SingleChildScrollView(
+                        child: Column(
+                        children: [
+                          const AvailableDeviceContainner(),
+                          const SizedBox(height: 20),
+                          DataTableWidget(
+                            deviceList: btc.firestoreController.dataList,
+                          ),
+                        ],
+                      ))
+                    : const Center(
+                        child: DefaultText(text: 'No Device Available'),
+                      ),
               ),
+
+        //  FutureBuilder<void>(
+        //   future: Future.delayed(
+        //       const Duration(seconds: 2)), // Simulate a 2-second delay
+        //   builder: (context, snapshot) {
+        //     if (snapshot.connectionState == ConnectionState.waiting) {
+        //       return  // Show progress indicator
+        //     } else {
+        //       return ;
+        //     }
+        //   },
+        // ),
+
         bottomSheet: DeviceButton(
           title: "Add Device",
           icon: const Icon(

@@ -52,7 +52,10 @@ class DataTableWidget extends StatelessWidget {
             DataCell(Text(FirebaseAuth.instance.currentUser!.email!)),
             DataCell(onTap: () {
               Get.toNamed(RouteName.deviceDataView, arguments: doc);
-            }, Text(doc!.deviceId!)),
+            },
+                Text(doc?.deviceName?.isEmpty ?? true
+                    ? "Unknown device"
+                    : doc!.deviceName!)),
           ]);
         }).toList(),
       ),

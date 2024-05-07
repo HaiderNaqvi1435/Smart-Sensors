@@ -1,5 +1,6 @@
 class DeviceDataModel {
   String? deviceId;
+  String? deviceName;
   String? serviceId;
   String? characteristicId;
   String? userId;
@@ -7,6 +8,7 @@ class DeviceDataModel {
 
   DeviceDataModel(
       {this.deviceId,
+      this.deviceName,
       this.serviceId,
       this.characteristic,
       this.characteristicId,
@@ -14,6 +16,7 @@ class DeviceDataModel {
 
   DeviceDataModel.fromJson(Map<String, dynamic> json) {
     deviceId = json['deviceId'];
+    deviceName = json['deviceName'];
     serviceId = json['serviceId'];
     characteristicId = json['characteristicId'];
     userId = json['userId'];
@@ -23,6 +26,7 @@ class DeviceDataModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['deviceId'] = deviceId;
+    data['deviceName'] = deviceName;
     data['userId'] = userId;
     data['characteristicId'] = characteristicId;
     data['serviceId'] = serviceId;

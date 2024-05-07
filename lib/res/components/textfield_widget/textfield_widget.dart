@@ -32,7 +32,7 @@ class TextFieldWidget extends StatelessWidget {
       focusNode: focusNode,
       obscureText: obscureText ?? false,
       cursorColor: AppColors.linearColor1,
-      style: const TextStyle(color: AppColors.whiteColor),
+      style: const TextStyle(color: AppColors.whiteColor, fontSize: 12),
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: const TextStyle(color: Colors.grey),
