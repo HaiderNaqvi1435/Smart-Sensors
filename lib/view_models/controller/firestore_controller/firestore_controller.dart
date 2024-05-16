@@ -7,15 +7,27 @@ import '../../../models/device_data_model/device_data_model.dart';
 import '../../../utils/utils.dart';
 
 class FirestoreController extends GetxController {
-  RxList<DeviceDataModel> dataList = <DeviceDataModel>[].obs;
+   RxList<DeviceDataModel> dataList = <DeviceDataModel>[].obs;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  RxBool isLoading = false.obs;
+
   @override
-  void onInit() async {
-    dataList.value = await getData();
+  void onInit() {
+    fetchData();
     super.onInit();
   }
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final RxBool isLoading = false.obs;
+  void fetchData() async {
+    isLoading(true);
+    try {
+      dataList.value = await getData();
+    } catch (e) {
+      print('Error fetching data: $e');
+    } finally {
+      isLoading(false);
+    }
+  }
+
   // Store service UUID and characteristics in Firestore
   Future<void> storeData(DeviceDataModel deviceData) async {
     try {

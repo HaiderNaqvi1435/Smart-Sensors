@@ -1,3 +1,4 @@
+import 'dart:async';
 
 import 'package:smart_sensors/res/colors/app_colors/app_colors.dart';
 import 'package:smart_sensors/view_models/controller/bluetooth_controller/bluetooth_controller.dart';
@@ -19,12 +20,32 @@ class MyDevicesView extends StatefulWidget {
 }
 
 class _MyDevicesViewState extends State<MyDevicesView> {
-  final btc = Get.put(BluetoothController());
+  final BluetoothController btc = Get.put(BluetoothController());
+  late final Timer timer;
 
-  // List<String> deviceId = [
-  //   "001",
-  //   "002",
-  // ];
+  @override
+  void initState() {
+    btc.initBluetooth();
+    timer = Timer.periodic(const Duration(seconds: 10), (_) async {
+      if (btc.connectedDevice !=null ) {
+        await btc.getCharacteristics(btc.connectedDevice!);
+      } else{
+        print ("Device is not connected");
+
+      }
+   
+    });
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -47,7 +68,7 @@ class _MyDevicesViewState extends State<MyDevicesView> {
             //     icon: const Icon(Icons.add)),
           ],
         ),
-        body: btc.firestoreController.isLoading.isTrue
+        body: btc.firestore.isLoading.isTrue
             ? const Center(
                 child: CircularProgressIndicator(
                   color: AppColors.linearColor1,
@@ -56,14 +77,14 @@ class _MyDevicesViewState extends State<MyDevicesView> {
             : Padding(
                 padding:
                     const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-                child: btc.firestoreController.dataList.isNotEmpty
+                child: btc.firestore.dataList.isNotEmpty
                     ? SingleChildScrollView(
                         child: Column(
                         children: [
                           const AvailableDeviceContainner(),
                           const SizedBox(height: 20),
                           DataTableWidget(
-                            deviceList: btc.firestoreController.dataList,
+                            deviceList: btc.firestore.dataList,
                           ),
                         ],
                       ))
@@ -71,19 +92,6 @@ class _MyDevicesViewState extends State<MyDevicesView> {
                         child: DefaultText(text: 'No Device Available'),
                       ),
               ),
-
-        //  FutureBuilder<void>(
-        //   future: Future.delayed(
-        //       const Duration(seconds: 2)), // Simulate a 2-second delay
-        //   builder: (context, snapshot) {
-        //     if (snapshot.connectionState == ConnectionState.waiting) {
-        //       return  // Show progress indicator
-        //     } else {
-        //       return ;
-        //     }
-        //   },
-        // ),
-
         bottomSheet: DeviceButton(
           title: "Add Device",
           icon: const Icon(

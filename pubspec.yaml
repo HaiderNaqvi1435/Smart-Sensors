@@ -40,6 +40,7 @@ dependencies:
   fluttertoast: ^8.2.4
   get: ^4.6.6
   google_fonts: ^6.2.1
+  mqtt_client: ^10.2.1
   permission_handler: ^11.3.1
 
 dev_dependencies:

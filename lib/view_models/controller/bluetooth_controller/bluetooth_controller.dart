@@ -13,38 +13,21 @@ import '../../../services/permission_services/permission_services.dart';
 import '../auth__controller/auth__controller.dart';
 
 class BluetoothController extends GetxController {
-  late final Timer timer;
   final PermissionServices permissionServices = PermissionServices();
-  final firestoreController = Get.put(FirestoreController());
   final AuthController authController = Get.put(AuthController());
-  @override
-  void onInit() async {
-    await firestoreController.getData();
-    // Always initialize the timer.
-    timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
-      if (connectedDevice != null) {
-        await getCharacteristics(connectedDevice!);
-      }
-    });
-    permissionServices.getPermissions();
-
-    // TODO: implement onInit
-    super.onInit();
-  }
-
-  @override
-  void dispose() {
-    // Since timer is always initialized, it's safe to cancel it here.
-    timer.cancel();
-    super.dispose();
-  }
-
   final firestore = Get.put(FirestoreController());
-  late final BluetoothDevice? connectedDevice;
-
-  // BluetoothDevice? connecteddevice;
+  BluetoothDevice? connectedDevice;
   RxList<ScanResult> scanResults = <ScanResult>[].obs;
-  // RxList<int> characteristics = <int>[].obs;
+
+  void initBluetooth() async {
+    try {
+      await permissionServices.getPermissions();
+      firestore.dataList.value = await firestore.getData();
+    } catch (e) {
+      print('Error initializing Bluetooth: $e');
+    }
+  }
+
   Future<void> startBluetoothScan() async {
     if (await Permission.bluetoothScan.isGranted && Platform.isAndroid) {
       await FlutterBluePlus.turnOn();
@@ -95,7 +78,6 @@ class BluetoothController extends GetxController {
       print(device);
     }
     try {
-      // Utils.toastMessage("Connecting to device ${device.remoteId}");
       await device.connect(timeout: const Duration(seconds: 10));
       BluetoothConnectionState connectionState =
           await device.connectionState.firstWhere(
@@ -106,10 +88,11 @@ class BluetoothController extends GetxController {
       );
       if (connectionState == BluetoothConnectionState.connected) {
         Utils.toastMessage("Device is connected");
-        await getCharacteristics(device);
-        Get.toNamed(RouteName.myDevicesView);
+        await getCharacteristics(device).then((value) {
+          return Get.toNamed(RouteName.myDevicesView);
+        });
 
-        return device; // Return the connected device
+        return device;
       }
     } catch (e) {
       if (kDebugMode) {
@@ -117,72 +100,8 @@ class BluetoothController extends GetxController {
       }
       Utils.toastMessage("Failed to connect!");
     }
-    return null; // Return null if the connection was not successful
+    return null;
   }
-  // Future<void> connectToDevice(BluetoothDevice device) async {
-  //   if (kDebugMode) {
-  //     print(device);
-  //   }
-  //   try {
-  //     // Utils.toastMessage("Connecting to device ${device.remoteId}");
-  //     await device.connect(timeout: const Duration(seconds: 10));
-  //     BluetoothConnectionState connectionState =
-  //         await device.connectionState.firstWhere(
-  //       (state) => state == BluetoothConnectionState.connected,
-  //       orElse: () {
-  //         throw Exception('Failed to connect to device');
-  //       },
-  //     );
-  //     if (connectionState == BluetoothConnectionState.connected) {
-  //       connecteddevice = device;
-
-  //       Utils.toastMessage("Device is connected");
-  //       Get.toNamed(RouteName.myDevicesView, arguments: [device]);
-  //       await getCharacteristics(device);
-  //     }
-  //   } catch (e) {
-  //     if (kDebugMode) {
-  //       print("Failed to connect to device: $e");
-  //     }
-  //     Utils.toastMessage("Failed to connect!");
-  //   }
-  // }
-
-  // Future getCharacteristics(BluetoothDevice device) async {
-  //   try {
-  //     DeviceDataModel deviceDataModel = DeviceDataModel();
-  //     List<BluetoothService> services = await device.discoverServices();
-  //     for (BluetoothService service in services) {
-  //       if (kDebugMode) {
-  //         print('Service UUID: ${service.uuid}');
-  //       }
-  //       for (BluetoothCharacteristic characteristic
-  //           in service.characteristics) {
-  //         if (kDebugMode) {
-  //           print('Characteristic UUID: ${characteristic.uuid}');
-  //         }
-  //         await characteristic.read().then((value) async {
-  //           deviceDataModel.characteristic!.addAll(value);
-  //           deviceDataModel.deviceId = device.remoteId.toString();
-  //           deviceDataModel.characteristicId = characteristic.uuid.toString();
-  //           deviceDataModel.serviceId = service.uuid.toString();
-  //           deviceDataModel.userId =
-  //               FirebaseAuth.instance.currentUser!.uid.toString();
-
-  //           if (kDebugMode) {
-  //             print('Characteristic Value: $value');
-  //           }
-  //         }).then((value) async {
-  //           await firestore.storeData(deviceDataModel);
-  //         });
-  //       }
-  //     }
-  //   } catch (e) {
-  //     if (kDebugMode) {
-  //       print('Error getting characteristics: $e');
-  //     }
-  //   }
-  // }
 
   Future<void> getCharacteristics(BluetoothDevice device) async {
     try {
